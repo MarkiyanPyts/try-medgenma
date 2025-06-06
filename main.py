@@ -14,7 +14,7 @@ model = AutoModelForImageTextToText.from_pretrained(
 processor = AutoProcessor.from_pretrained(model_id)
 
 # Load local X-ray image
-image_path = "xray.jpg"
+image_path = "xray_2.jpg"
 image = Image.open(image_path).convert("RGB")
 
 prompt = "<start_of_image> findings:"
