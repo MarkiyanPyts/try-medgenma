@@ -1,16 +1,18 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+# pip install accelerate
+from transformers import AutoProcessor, AutoModelForImageTextToText
+from PIL import Image
 import torch
 
-# Load MedGemma text model (2B for text-only tasks)
-model_id = "google/medgemma-2b-it"
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
+model_id = "google/medgemma-4b-pt"
 
-# Read test results from file
+model = AutoModelForImageTextToText.from_pretrained(
+    model_id,
+    torch_dtype=torch.bfloat16,
+    device_map="auto",
+)
+processor = AutoProcessor.from_pretrained(model_id)
+
+# Read test results from text.txt
 with open("text.txt", "r") as f:
     test_results = f.read().strip()
 
@@ -23,20 +25,17 @@ Test Results:
 Please provide:
 1. The type of specialist recommended
 2. Reason for this recommendation
-3. Any urgent concerns if present
+3. Any urgent concerns if present"""
 
-Response:"""
+inputs = processor(
+    text=prompt, return_tensors="pt"
+).to(model.device, dtype=torch.bfloat16)
 
-# Tokenize and generate response
-inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-with torch.no_grad():
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=200,
-        temperature=0.7,
-        do_sample=True,
-        top_p=0.95
-    )
+input_len = inputs["input_ids"].shape[-1]
 
-response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-print(response)
+with torch.inference_mode():
+    generation = model.generate(**inputs, max_new_tokens=200, do_sample=False)
+    generation = generation[0][input_len:]
+
+decoded = processor.decode(generation, skip_special_tokens=True)
+print(decoded)
