@@ -13,11 +13,9 @@ model = AutoModelForImageTextToText.from_pretrained(
 )
 processor = AutoProcessor.from_pretrained(model_id)
 
-# Image attribution: Stillwaterising, CC0, via Wikimedia Commons
-image_url = "https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png"
-image = Image.open(
-    requests.get(image_url, headers={"User-Agent": "example"}, stream=True).raw
-).convert("RGB")
+# Load local X-ray image
+image_path = "xray.jpg"
+image = Image.open(image_path).convert("RGB")
 
 prompt = "<start_of_image> findings:"
 inputs = processor(
