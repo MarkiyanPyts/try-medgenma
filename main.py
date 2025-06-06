@@ -10,9 +10,9 @@ pipe = pipeline(
     device="mps" if torch.backends.mps.is_available() else "cpu",
 )
 
-# Image attribution: Stillwaterising, CC0, via Wikimedia Commons
-image_url = "https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png"
-image = Image.open(requests.get(image_url, headers={"User-Agent": "example"}, stream=True).raw)
+# Load local X-ray image
+image_path = "IMG_3380.jpg"  # Your X-ray image
+image = Image.open(image_path)
 
 output = pipe(
     images=image,
