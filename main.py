@@ -7,7 +7,7 @@ pipe = pipeline(
     "image-text-to-text",
     model="google/medgemma-4b-pt",
     torch_dtype=torch.bfloat16,
-    device="cuda",
+    device="mps" if torch.backends.mps.is_available() else "cpu",
 )
 
 # Image attribution: Stillwaterising, CC0, via Wikimedia Commons
